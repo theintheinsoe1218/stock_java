@@ -63,6 +63,32 @@ public class UserAccountDto{
 		this.remark = remark;
 		this.date = date;
 	}
+	public UserAccountDto(int userAccountId, String profileName, String userName, String phone, String usertype,
+			boolean status, String address, String remark, String password, String epassword) {
+		// TODO Auto-generated constructor stub
+		this.userAccountId = userAccountId;
+		this.profileName = profileName;
+		this.userName = userName;
+		this.phone = phone;
+		this.userType = userType;
+		this.status = status;
+		this.address = address;
+		this.remark = remark;
+		this.password = password;
+		this.encryptPassword = epassword;
+	}
+	public UserAccountDto(int userAccountId, String profileName, String userName, String phone, String usertype,
+			boolean status, String address, String remark, Date date) {
+		// TODO Auto-generated constructor stub
+		this.userAccountId = userAccountId;
+		this.userName = userName;
+		this.phone = phone;
+		this.userType = userType;
+		this.status = status;
+		this.address = address;
+		this.remark = remark;
+		this.date = date;
+	}
 	private int userAccountId;
 	private String profileName;
 	private String userName;

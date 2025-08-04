@@ -65,12 +65,11 @@ public class UserAccountDaoImpl implements UserAccountDao{
 	public List<UserAccountDto> getUserList(String userType) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.getCurrentSession();
-		String sqlData="SELECT ua.userAccountId,ua.profileName,ua.userName,ua.phone,ua.nrcNo,ua.userType,ua.`status`,\r\n"
-				+ "ua.address,ua.remark,b.branchId,b.branchName,ua.password,ua.encryptPassword,ua.date,ua.modifiedDate\r\n"
-				+ "FROM useraccount ua \r\n"
-				+ "LEFT JOIN branch b ON b.branchId = ua.branchId\r\n";
-		String whereClause="WHERE ua.`status` = 1 ";
-		String orderClause = " ORDER BY ua.profileName ASC";
+		String sqlData="SELECT ua.userAccountId,ua.profileName,ua.userName,ua.phone,ua.userType,ua.`status`,\r\n"
+				+ "ua.address,ua.remark,ua.password,ua.encryptPassword,ua.date,ua.modifiedDate\r\n"
+				+ "FROM useraccount ua \r\n";
+		String whereClause="WHERE ua.`status` = 1 \r\n";
+		String orderClause = " ORDER BY ua.profileName ASC\r\n";
 		
 		
 		List<Object[]> objectList = new ArrayList<Object[]>();
@@ -91,27 +90,22 @@ public class UserAccountDaoImpl implements UserAccountDao{
 			if(object[3]!=null) {
 				phone=object[3].toString();
 			}
-			String nrcNo="";
-			if(object[4]!=null) {
-				nrcNo=object[4].toString();
-			}
 			
-			String usertype=object[5].toString();
-			boolean status=(boolean) object[6];
-			String address = (String)object[7];
-			String remark = (String)object[8];
-			int branchId = Integer.parseInt(object[9].toString());
-			String branchName = (String)object[10];
-			String password = (String)object[11];
-			String epassword = (String)object[12];
-			Date date = (Date)object[13];
-			Date modifiedDate = (Date)object[14];
+			
+			String usertype=object[4].toString();
+			boolean status=(Boolean) object[5];
+			String address = (String)object[6];
+			String remark = (String)object[7];
+			
+			String password = (String)object[8];
+			String epassword = (String)object[9];
+			Date date = (Date)object[10];
+			Date modifiedDate = (Date)object[11];
 					
-			UserAccountDto dto=new UserAccountDto(userAccountId,profileName,userName,phone,nrcNo,usertype,
+			UserAccountDto dto=new UserAccountDto(userAccountId,profileName,userName,phone,usertype,
 					status,address,remark,password,epassword);
 
-//			BranchDto branchDto = new BranchDto(branchId,branchName);
-//			dto.setBranchDto(branchDto);
+
 			dto.setDate(date);
 			dto.setModifiedDate(modifiedDate);
 			userDtoList.add(dto);
@@ -123,16 +117,15 @@ public class UserAccountDaoImpl implements UserAccountDao{
 	public List<UserAccountDto> getUserListByName(String userName) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.getCurrentSession();
-		String sqlData="SELECT ua.userAccountId,ua.profileName,ua.userName,ua.phone,ua.nrcNo,ua.userType,\r\n"
-				+ "ua.`status`,ua.address,ua.remark, ua.branchId, b.branchName,ua.date\r\n"
-				+ "FROM useraccount ua\r\n"
-				+ "LEFT JOIN branch b ON b.branchId = ua.branchId\r\n";
+		String sqlData="SELECT ua.userAccountId,ua.profileName,ua.userName,ua.phone,ua.userType,\r\n"
+				+ "ua.`status`,ua.address,ua.remark,ua.date\r\n"
+				+ "FROM useraccount ua\r\n";
 		String whereClause="WHERE ua.`status`= 1 ";
 		String orderClause = " ORDER BY ua.profileName ASC ";
 		List<Object[]> objectList = session.createNativeQuery(sqlData+whereClause+ " AND (ua.profileName LIKE :userName OR ua.userName LIKE :userName	) "+orderClause)
 				.setParameter("userName","%"+userName.toString().trim()+"%").getResultList();
 		List<UserAccountDto> userDtoList=new ArrayList<UserAccountDto>();
-//		BranchDto braDto = new BranchDto();
+
 		for(Object[] object:objectList) {
 			int userAccountId=Integer.parseInt(object[0].toString()) ;
 			String profileName=object[1].toString();
@@ -141,25 +134,18 @@ public class UserAccountDaoImpl implements UserAccountDao{
 			if(object[3]!=null) {
 				phone=object[3].toString();
 			}
-			String nrcNo="";
-			if(object[4]!=null) {
-				nrcNo=object[4].toString();
-			}
-			String usertype=object[5].toString();
-			boolean status=(boolean) object[6];
-			String address = (String)object[7];
 			
-			String remark = (String)object[8];
+			String usertype=object[4].toString();
+			boolean status=(boolean) object[5];
+			String address = (String)object[6];
 			
-			int branchId = Integer.parseInt(object[9].toString());
-			String branchName = (String)object[10];
+			String remark = (String)object[7];
+	
 			
-//			braDto = new BranchDto(branchId,branchName);
-			Date date = (Date)object[11];
-			UserAccountDto dto=new UserAccountDto(userAccountId,profileName,uusername,phone,nrcNo,usertype,
+			Date date = (Date)object[8];
+			UserAccountDto dto=new UserAccountDto(userAccountId,profileName,uusername,phone,usertype,
 					status,address,remark,date);
-//			braDto = new BranchDto(branchId,branchName);
-//			dto.setBranchDto(braDto);
+
 			
 			userDtoList.add(dto);
 		}
@@ -170,10 +156,9 @@ public class UserAccountDaoImpl implements UserAccountDao{
 	public List<UserAccountDto> getUserListById(int userId) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.getCurrentSession();
-		String sqlData="SELECT ua.userAccountId,ua.profileName,ua.userName,ua.phone,ua.nrcNo,ua.userType,ua.`status`\r\n"
-				+ ",ua.address,ua.remark,ua.branchId,b.branchName,ua.date \r\n"
-				+ "FROM useraccount ua\r\n"
-				+ "LEFT JOIN branch b ON b.branchId = ua.branchId\r\n";
+		String sqlData="SELECT ua.userAccountId,ua.profileName,ua.userName,ua.phone,ua.userType,ua.`status`\r\n"
+				+ ",ua.address,ua.remark,ua.date \r\n"
+				+ "FROM useraccount ua\r\n";
 		String whereClause="WHERE ua.`status`= 1 ";
 		String orderClause = " ORDER BY ua.profileName ASC ";
 //		BranchDto braDto = new BranchDto();
@@ -188,24 +173,19 @@ public class UserAccountDaoImpl implements UserAccountDao{
 			if(object[3]!=null) {
 				phone=object[3].toString();
 			}
-			String nrcNo="";
-			if(object[4]!=null) {
-				nrcNo=object[4].toString();
-			}
-			String usertype=object[5].toString();
-			boolean status=(boolean) object[6];
-			String address = (String)object[7];
+			
+			String usertype=object[4].toString();
+			boolean status=(boolean) object[5];
+			String address = (String)object[6];
 
 
-			String remark = (String)object[8];
+			String remark = (String)object[7];
 
-			int branchId = Integer.parseInt(object[9].toString());
-			String branchName = (String)object[10];
-			Date date = (Date)object[11];
-			UserAccountDto dto=new UserAccountDto(userAccountId,profileName,userName,phone,nrcNo,usertype,
+			
+			Date date = (Date)object[8];
+			UserAccountDto dto=new UserAccountDto(userAccountId,profileName,userName,phone,usertype,
 					status,address,remark,date);
-//			braDto = new BranchDto(branchId,branchName);
-//			dto.setBranchDto(braDto);
+
 			userDtoList.add(dto);
 		}
 		return userDtoList;
