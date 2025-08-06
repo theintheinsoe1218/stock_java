@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tts.stock.domain.Unit;
+import com.tts.stock.domain.Item;
 import com.tts.stock.util.DateTimeFormatDeserializer;
 import com.tts.stock.util.DateTimeFormatSerializer;
 
@@ -18,21 +18,25 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.USE_DEFAULTS)
 @NoArgsConstructor
 @AllArgsConstructor
-public class UnitDto {
-	public UnitDto(Unit unit) {
+public class ItemDto {
+	
+	public ItemDto(int itemId, String itemName, String itemCode, int reorderLevel, String remark, Date created_at,
+			Date updated_at) {
 		// TODO Auto-generated constructor stub
-		this.unitId = unit.getUnitId();
-		this.unitName = unit.getUnitName();
-		this.created_at = unit.getCreated_at();
-		this.updated_at = unit.getUpdated_at();
+		this.itemId = itemId;
+		this.itemName = itemName;
+		this.itemCode = itemCode;
+		this.reorderLevel = reorderLevel;
+		this.remark = remark;
+		this.created_at = created_at;
+		this.updated_at = updated_at;
 	}
-	public UnitDto(int unitId, String unitName) {
-		// TODO Auto-generated constructor stub
-		this.unitId = unitId;
-		this.unitName = unitName;
-	}
-	private int unitId;
-	private String unitName;
+	private int itemId;
+	private String itemName;
+	private String itemCode;
+	private UnitDto unitDto;
+	private int reorderLevel;
+	private String remark;
 	@JsonSerialize(using = DateTimeFormatSerializer.class)
 	@JsonDeserialize(using = DateTimeFormatDeserializer.class)
 	private Date created_at;

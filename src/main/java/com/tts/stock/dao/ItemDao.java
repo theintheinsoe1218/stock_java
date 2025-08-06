@@ -1,0 +1,18 @@
+package com.tts.stock.dao;
+
+import java.util.List;
+
+import com.tts.stock.domain.Item;
+import com.tts.stock.dto.ItemDto;
+
+public interface ItemDao {
+
+	List<ItemDto> getItem();
+
+	void addItem(Item item);
+
+	void updateItem(Item item);
+
+	void deleteItem(int itemId);
+
+}
