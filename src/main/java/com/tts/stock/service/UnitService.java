@@ -6,7 +6,7 @@ import com.tts.stock.dto.UnitDto;
 
 public interface UnitService {
 
-	List<UnitDto> getUnit();
+	List<UnitDto> getUnit(int start, int end);
 
 
 	UnitDto addUnit(UnitDto dto);
@@ -16,5 +16,8 @@ public interface UnitService {
 
 
 	int deleteUnit(int unitId);
+
+
+	long getTotalUnits();
 
 }

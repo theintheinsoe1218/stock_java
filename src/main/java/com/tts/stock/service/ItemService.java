@@ -6,7 +6,7 @@ import com.tts.stock.dto.ItemDto;
 
 public interface ItemService {
 
-	List<ItemDto> getItem();
+	List<ItemDto> getItem(int page, int itemPerPage);
 
 	ItemDto addItem(ItemDto dto);
 

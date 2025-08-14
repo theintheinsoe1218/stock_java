@@ -7,12 +7,14 @@ import com.tts.stock.dto.UnitDto;
 
 public interface UnitDao {
 
-	List<UnitDto> getUnit();
+	List<UnitDto> getUnit(int start, int end);
 
 	void addUnit(Unit unit);
 
 	void updateUnit(Unit unit);
 
 	void deleteUnit(int unitId);
+
+	long getTotalUnits();
 
 }

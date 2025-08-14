@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -25,8 +26,11 @@ public class UnitController {
 	UnitService unitService;
 	
 	@GetMapping("unit")
-	public List<UnitDto> getUnit(){
-		return unitService.getUnit();
+	public List<UnitDto> getUnit(@RequestParam(name = "start", required = false, defaultValue = "0") int start,
+		    @RequestParam(name = "end", required = false, defaultValue = "0") int end){
+		if (start < 0) start = 0;
+	    if (end < 0) end = 0;
+		return unitService.getUnit(start,end);
 	}
 	
 	@PostMapping("unit")

@@ -17,9 +17,9 @@ public class ItemServiceImpl implements ItemService{
 	
 	@Transactional(readOnly=true)
 	@Override
-	public List<ItemDto> getItem() {
+	public List<ItemDto> getItem(int page, int itemPerPage) {
 		// TODO Auto-generated method stub
-		return itemDao.getItem();
+		return itemDao.getItem(page, itemPerPage);
 	}
 
 	@Transactional(readOnly=false)

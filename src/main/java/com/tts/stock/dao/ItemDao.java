@@ -7,7 +7,7 @@ import com.tts.stock.dto.ItemDto;
 
 public interface ItemDao {
 
-	List<ItemDto> getItem();
+	List<ItemDto> getItem(int page, int itemPerPage);
 
 	void addItem(Item item);
 

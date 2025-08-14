@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -23,8 +24,9 @@ public class ItemController {
 	ItemService itemService;
 	
 	@GetMapping("item")
-	public List<ItemDto> getItem(){
-		return itemService.getItem();
+	public List<ItemDto> getItem(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
+		    @RequestParam(name = "itemPerPage", required = false, defaultValue = "10") int itemPerPage){
+		return itemService.getItem(page,itemPerPage);
 	}
 	
 	@PostMapping("item")
@@ -63,5 +65,10 @@ public class ItemController {
 		}
 	}
 	
+	@GetMapping("item/count")
+	public List<ItemDto> getTotalItem(){
+//		return itemService.getTotalItem();
+		return null;
+	}
 	
 }

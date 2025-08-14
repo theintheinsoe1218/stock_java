@@ -20,15 +20,22 @@ public class ItemDaoImpl implements ItemDao{
 	SessionFactory sessionFactory;
 	
 	@Override
-	public List<ItemDto> getItem() {
+	public List<ItemDto> getItem(int page, int itemPerPage) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.getCurrentSession();
+		int offset = (page - 1 ) * itemPerPage;
+		
 		String sqlData = "SELECT i.itemId,i.itemName,i.itemCode, i.unitId, u.unitName, i.reorderLevel,\r\n"
 				+ "i.remark,i.created_at,i.updated_at\r\n"
 				+ "FROM item i\r\n"
 				+ "LEFT JOIN unit u ON u.unitId = i.unitId\r\n"
-				+ "ORDER BY i.itemName";
-		List<Object[]> objList = session.createNativeQuery(sqlData).getResultList();
+				+ "ORDER BY i.itemName\r\n"
+				+ "LIMIT :itemPerPage\r\n"
+				+ "OFFSET :offset\r\n";
+		List<Object[]> objList = session.createNativeQuery(sqlData)
+										.setParameter("itemPerPage", itemPerPage)
+										.setParameter("offset", offset)
+										.getResultList();
 		List<ItemDto> dtoList = new ArrayList<ItemDto>();
 		for(Object[] obj:objList) {
 			

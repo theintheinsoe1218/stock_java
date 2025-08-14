@@ -18,9 +18,9 @@ public class UnitServiceImpl implements UnitService{
 	
 	@Transactional(readOnly=true)
 	@Override
-	public List<UnitDto> getUnit() {
+	public List<UnitDto> getUnit(int start, int end) {
 		// TODO Auto-generated method stub
-		return unitDao.getUnit();
+		return unitDao.getUnit(start,end);
 	}
 	
 	@Transactional(readOnly=false)
@@ -52,6 +52,13 @@ public class UnitServiceImpl implements UnitService{
 		// TODO Auto-generated method stub
 		unitDao.deleteUnit(unitId);
 		return unitId;
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public long getTotalUnits() {
+		// TODO Auto-generated method stub
+		return unitDao.getTotalUnits();
 	}
 
 	
