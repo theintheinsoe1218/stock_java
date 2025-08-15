@@ -31,7 +31,13 @@ public class ItemDto {
 		this.created_at = created_at;
 		this.updated_at = updated_at;
 	}
-	private int itemId;
+	public ItemDto(int itemId, String itemName, int unitId, String unitName) {
+        //TODO Auto-generated constructor stub
+		this.itemId = itemId;
+		this.itemName = itemName;
+		this.unitDto = new UnitDto(unitId,unitName);
+    }
+    private int itemId;
 	private String itemName;
 	private String itemCode;
 	private UnitDto unitDto;

@@ -89,7 +89,13 @@ public class UserAccountDto{
 		this.remark = remark;
 		this.date = date;
 	}
-	private int userAccountId;
+	public UserAccountDto(int userAccountId, String profileName, String userName) {
+        //TODO Auto-generated constructor stub
+		this.userAccountId = userAccountId;
+		this.profileName = profileName;
+		this.userName = userName;
+    }
+    private int userAccountId;
 	private String profileName;
 	private String userName;
 	private String password;

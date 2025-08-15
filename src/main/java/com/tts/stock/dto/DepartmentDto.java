@@ -26,7 +26,12 @@ public class DepartmentDto {
 		this.created_at = department.getCreated_at();
 		this.updated_at = department.getUpdated_at();
 	}
-	private int departmentId;
+	public DepartmentDto(int fromDepartmentId, String fromDepartmentName) {
+        //TODO Auto-generated constructor stub
+		this.departmentId = fromDepartmentId;
+		this.departmentName = fromDepartmentName;
+    }
+    private int departmentId;
 	private String departmentName;
 	@JsonSerialize(using = DateTimeFormatSerializer.class)
 	@JsonDeserialize(using = DateTimeFormatDeserializer.class)
