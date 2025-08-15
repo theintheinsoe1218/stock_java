@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import com.tts.stock.dto.ItemDto;
+import com.tts.stock.dto.ItemFormatDto;
 import com.tts.stock.service.ItemService;
 
 @RestController
@@ -24,8 +25,8 @@ public class ItemController {
 	ItemService itemService;
 	
 	@GetMapping("item")
-	public List<ItemDto> getItem(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-		    @RequestParam(name = "itemPerPage", required = false, defaultValue = "10") int itemPerPage){
+	public ItemFormatDto getItem(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
+		    @RequestParam(name = "itemPerPage", required = false, defaultValue = "0") int itemPerPage){
 		return itemService.getItem(page,itemPerPage);
 	}
 	
@@ -66,9 +67,14 @@ public class ItemController {
 	}
 	
 	@GetMapping("item/count")
-	public List<ItemDto> getTotalItem(){
-//		return itemService.getTotalItem();
-		return null;
+	public long getTotalItem(){
+		return itemService.getTotalItem();
+//		return null;
+	}
+	
+	@GetMapping("item/search")
+	public List<ItemDto> getItemSearch(@RequestParam(required = false, defaultValue = "") String search){
+		return itemService.getItemSearch(search);
 	}
 	
 }

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tts.stock.dao.ItemDao;
 import com.tts.stock.domain.Item;
 import com.tts.stock.dto.ItemDto;
+import com.tts.stock.dto.ItemFormatDto;
 @Service
 public class ItemServiceImpl implements ItemService{
 	@Autowired
@@ -17,7 +18,7 @@ public class ItemServiceImpl implements ItemService{
 	
 	@Transactional(readOnly=true)
 	@Override
-	public List<ItemDto> getItem(int page, int itemPerPage) {
+	public ItemFormatDto getItem(int page, int itemPerPage) {
 		// TODO Auto-generated method stub
 		return itemDao.getItem(page, itemPerPage);
 	}
@@ -50,6 +51,20 @@ public class ItemServiceImpl implements ItemService{
 		// TODO Auto-generated method stub
 		itemDao.deleteItem(itemId);
 		return itemId;
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public long getTotalItem() {
+		// TODO Auto-generated method stub
+		return itemDao.getTotalItem();
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public List<ItemDto> getItemSearch(String search) {
+		// TODO Auto-generated method stub
+		return itemDao.getItemSearch(search);
 	}
 
 }

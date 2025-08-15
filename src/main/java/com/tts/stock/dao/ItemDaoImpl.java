@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import com.tts.stock.domain.Item;
 import com.tts.stock.dto.ItemDto;
+import com.tts.stock.dto.ItemFormatDto;
 import com.tts.stock.dto.UnitDto;
 
 @Repository
@@ -20,7 +21,7 @@ public class ItemDaoImpl implements ItemDao{
 	SessionFactory sessionFactory;
 	
 	@Override
-	public List<ItemDto> getItem(int page, int itemPerPage) {
+	public ItemFormatDto getItem(int page, int itemPerPage) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.getCurrentSession();
 		int offset = (page - 1 ) * itemPerPage;
@@ -32,10 +33,24 @@ public class ItemDaoImpl implements ItemDao{
 				+ "ORDER BY i.itemName\r\n"
 				+ "LIMIT :itemPerPage\r\n"
 				+ "OFFSET :offset\r\n";
-		List<Object[]> objList = session.createNativeQuery(sqlData)
-										.setParameter("itemPerPage", itemPerPage)
-										.setParameter("offset", offset)
-										.getResultList();
+		
+		String sqlDataAll = "SELECT i.itemId,i.itemName,i.itemCode, i.unitId, u.unitName, i.reorderLevel,\r\n"
+				+ "i.remark,i.created_at,i.updated_at\r\n"
+				+ "FROM item i\r\n"
+				+ "LEFT JOIN unit u ON u.unitId = i.unitId\r\n"
+				+ "ORDER BY i.itemName";
+		List<Object[]> objList = null;
+		if(itemPerPage == 0) {
+			objList = session.createNativeQuery(sqlDataAll)
+							.getResultList();
+		}else {
+			objList = session.createNativeQuery(sqlData)
+					.setParameter("itemPerPage", itemPerPage)
+					.setParameter("offset", offset)
+					.getResultList();
+		}
+		
+		
 		List<ItemDto> dtoList = new ArrayList<ItemDto>();
 		for(Object[] obj:objList) {
 			
@@ -54,7 +69,11 @@ public class ItemDaoImpl implements ItemDao{
 			dto.setUnitDto(new UnitDto(unitId,unitName));
 			dtoList.add(dto);
 		}
-		return dtoList;
+		// Query for total count
+	    String sqlCount = "SELECT COUNT(*) FROM item";
+	    long totalCount = ((Number) session.createNativeQuery(sqlCount).getSingleResult()).longValue();
+
+	    return new ItemFormatDto(dtoList, totalCount);
 	}
 
 	@Override
@@ -77,6 +96,52 @@ public class ItemDaoImpl implements ItemDao{
 		Session session = sessionFactory.getCurrentSession();
 		session.createNativeQuery("Delete FROM item WHERE itemId=:itemId")
 		.setParameter("itemId", itemId).executeUpdate();
+	}
+
+	@Override
+	public long getTotalItem() {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.getCurrentSession();
+	    return session.createQuery("SELECT COUNT(u) FROM Unit u", Long.class).getSingleResult();
+	}
+
+	@Override
+	public List<ItemDto> getItemSearch(String search) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.getCurrentSession();
+		String sqlData = "SELECT i.itemId,i.itemName,i.itemCode, i.unitId, u.unitName, i.reorderLevel,\r\n"
+				+ "i.remark,i.created_at,i.updated_at\r\n"
+				+ "FROM item i\r\n"
+				+ "LEFT JOIN unit u ON u.unitId = i.unitId\r\n"
+				+ "WHERE i.itemName LIKE :search OR i.itemCode LIKE :search\r\n"
+				+ "ORDER BY i.itemName";
+		List<Object[]> objList = objList = session.createNativeQuery(sqlData)
+												  .setParameter("search", "%" + search + "%")
+												  .getResultList();
+		
+		
+		
+		List<ItemDto> dtoList = new ArrayList<ItemDto>();
+		for(Object[] obj:objList) {
+			
+			
+			int itemId = Integer.parseInt(obj[0].toString());
+			String itemName = (String)obj[1];
+			String itemCode = (String)obj[2];
+			int unitId = Integer.parseInt(obj[3].toString());
+			String unitName = (String)obj[4];
+			int reorderLevel = Integer.parseInt(obj[5].toString());
+			String remark = (String)obj[6];
+			Date created_at = (Date)obj[7];
+			Date updated_at = (Date)obj[8];
+			
+			ItemDto dto = new ItemDto(itemId,itemName,itemCode,reorderLevel,remark,created_at,updated_at);
+			dto.setUnitDto(new UnitDto(unitId,unitName));
+			dtoList.add(dto);
+		}
+		
+
+	    return dtoList;
 	}
 
 }
