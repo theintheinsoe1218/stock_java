@@ -27,28 +27,28 @@ public class StockMovementDaoImpl implements StockMovementDao{
         Session session = sessionFactory.getCurrentSession();
 		int offset = (page - 1 ) * itemPerPage;
 		
-		String sqlData = "SELECT st.stockMovementId, st.itemId,it.itemName,it.unitId,u.unitName,st.userAccountId,ua.profileName,ua.userName,st.movementType,st.fromDepartmentId, fde.departmentName as fromDepartmentName,st.toDepartmentId,tde.departmentName as toDepartmentName,\r\n" + //
-                        "st.qty,st.remark,st.movementDate,st.created_at,st.updated_at\r\n" + //
-                        "FROM stockmovement st\r\n" + //
-                        "LEFT JOIN item it on it.itemId = st.itemId\r\n" + //
-                        "LEFT JOIN unit u on u.unitId = it.unitId\r\n" + //
-                        "LEFT JOIN useraccount ua on ua.userAccountId = st.userAccountId\r\n" + //
-                        "LEFT JOIN department fde on fde.departmentId = st.fromDepartmentId\r\n" + //
-                        "LEFT JOIN department tde on tde.departmentId = st.toDepartmentId\r\n" + //
-                        "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n" + //
-                        "ORDER BY st.movementDate\r\n" + //
-                        "LIMIT :itemPerPage\r\n" + //
+		String sqlData = "SELECT st.stockMovementId, st.itemId,it.itemName,it.unitId,u.unitName,st.userAccountId,ua.profileName,ua.userName,st.movementType,st.fromDepartmentId, fde.departmentName as fromDepartmentName,st.toDepartmentId,tde.departmentName as toDepartmentName,\r\n" + 
+                        "st.qty,st.remark,st.movementDate,st.created_at,st.updated_at\r\n" + 
+                        "FROM stockmovement st\r\n" + 
+                        "LEFT JOIN item it on it.itemId = st.itemId\r\n" + 
+                        "LEFT JOIN unit u on u.unitId = it.unitId\r\n" + 
+                        "LEFT JOIN useraccount ua on ua.userAccountId = st.userAccountId\r\n" + 
+                        "LEFT JOIN department fde on fde.departmentId = st.fromDepartmentId\r\n" + 
+                        "LEFT JOIN department tde on tde.departmentId = st.toDepartmentId\r\n" + 
+                        "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n" + 
+                        "ORDER BY st.movementDate\r\n" + 
+                        "LIMIT :itemPerPage\r\n" + 
                         "OFFSET :offset";
 		
 		String sqlDataAll = "SELECT st.stockMovementId, st.itemId,it.itemName,it.unitId,u.unitName,st.userAccountId,ua.profileName,ua.userName,st.movementType,st.fromDepartmentId, fde.departmentName as fromDepartmentName,st.toDepartmentId,tde.departmentName as toDepartmentName,\r\n" + //
-                        "st.qty,st.remark,st.movementDate,st.created_at,st.updated_at\r\n" + //
-                        "FROM stockmovement st\r\n" + //
-                        "LEFT JOIN item it on it.itemId = st.itemId\r\n" + //
-                        "LEFT JOIN unit u on u.unitId = it.unitId\r\n" + //
-                        "LEFT JOIN useraccount ua on ua.userAccountId = st.userAccountId\r\n" + //
-                        "LEFT JOIN department fde on fde.departmentId = st.fromDepartmentId\r\n" + //
-                        "LEFT JOIN department tde on tde.departmentId = st.toDepartmentId\r\n" + //
-                        "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n" + //
+                        "st.qty,st.remark,st.movementDate,st.created_at,st.updated_at\r\n" + 
+                        "FROM stockmovement st\r\n" + 
+                        "LEFT JOIN item it on it.itemId = st.itemId\r\n" + 
+                        "LEFT JOIN unit u on u.unitId = it.unitId\r\n" + 
+                        "LEFT JOIN useraccount ua on ua.userAccountId = st.userAccountId\r\n" + 
+                        "LEFT JOIN department fde on fde.departmentId = st.fromDepartmentId\r\n" + 
+                        "LEFT JOIN department tde on tde.departmentId = st.toDepartmentId\r\n" + 
+                        "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n" + 
                         "ORDER BY st.movementDate";
 		List<Object[]> objList = null;
 		if(itemPerPage == 0) {
