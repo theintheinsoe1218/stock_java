@@ -11,7 +11,7 @@ import javax.persistence.Table;
 public class StockMovement {
     @Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private int stockmovementId;
+	private int stockMovementId;
 	private int itemId;
 	private int userAccountId;
 	private String movementType;
@@ -20,6 +20,7 @@ public class StockMovement {
 	private int qty;
 	private String remark;
     private Date movementDate;
+    private boolean status;
     private Date created_at;
 	private Date updated_at;
 
@@ -27,12 +28,12 @@ public class StockMovement {
 		super();
 	}
 
-    public int getStockmovementId() {
-        return stockmovementId;
+    public int getStockMovementId() {
+        return stockMovementId;
     }
 
-    public void setStockmovementId(int stockmovementId) {
-        this.stockmovementId = stockmovementId;
+    public void setStockMovementId(int stockmovementId) {
+        this.stockMovementId = stockmovementId;
     }
 
     public int getItemId() {
@@ -113,6 +114,14 @@ public class StockMovement {
 
     public void setUpdated_at(Date updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
     

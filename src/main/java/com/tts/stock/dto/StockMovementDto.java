@@ -22,7 +22,7 @@ public class StockMovementDto {
     public StockMovementDto(int stockMovementId, String movementType, int qty, String remark, Date movementDate,
             Date created_at, Date updated_at) {
         //TODO Auto-generated constructor stub
-        this.stockmovementId = stockMovementId;
+        this.stockMovementId = stockMovementId;
         this.movementType = movementType;
         this.qty = qty;
         this.remark = remark;
@@ -30,7 +30,7 @@ public class StockMovementDto {
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
-    private int stockmovementId;
+    private int stockMovementId;
 	private ItemDto itemDto;
 	private UserAccountDto userAccountDto;
 	private String movementType;
@@ -41,6 +41,7 @@ public class StockMovementDto {
     @JsonSerialize(using = DateFormatSerializer.class)
 	@JsonDeserialize(using = DateFormatDeserializer.class)
     private Date movementDate;
+    private boolean status;
     @JsonSerialize(using = DateTimeFormatSerializer.class)
 	@JsonDeserialize(using = DateTimeFormatDeserializer.class)
     private Date created_at;

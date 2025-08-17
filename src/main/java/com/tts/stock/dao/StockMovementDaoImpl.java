@@ -9,6 +9,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.tts.stock.domain.StockMovement;
 import com.tts.stock.dto.DepartmentDto;
 import com.tts.stock.dto.ItemDto;
 import com.tts.stock.dto.ItemFormatDto;
@@ -36,6 +37,7 @@ public class StockMovementDaoImpl implements StockMovementDao{
                         "LEFT JOIN department fde on fde.departmentId = st.fromDepartmentId\r\n" + 
                         "LEFT JOIN department tde on tde.departmentId = st.toDepartmentId\r\n" + 
                         "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n" + 
+                        "AND st.status = 1\r\n" +
                         "ORDER BY st.movementDate\r\n" + 
                         "LIMIT :itemPerPage\r\n" + 
                         "OFFSET :offset";
@@ -49,6 +51,7 @@ public class StockMovementDaoImpl implements StockMovementDao{
                         "LEFT JOIN department fde on fde.departmentId = st.fromDepartmentId\r\n" + 
                         "LEFT JOIN department tde on tde.departmentId = st.toDepartmentId\r\n" + 
                         "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n" + 
+                        "AND st.status = 1\r\n" +
                         "ORDER BY st.movementDate";
 		List<Object[]> objList = null;
 		if(itemPerPage == 0) {
@@ -77,7 +80,11 @@ public class StockMovementDaoImpl implements StockMovementDao{
 			String profileName = (String)obj[6];
 			String userName = (String)obj[7];
 			String movementType = (String)obj[8];
-			int fromDepartmentId = Integer.parseInt(obj[9].toString());
+            int fromDepartmentId = 0;
+            if(obj[9] != null){
+
+                fromDepartmentId = Integer.parseInt(obj[9].toString());
+            }
 			String fromDepartmentName = (String)obj[10];
             int toDepartmentId = Integer.parseInt(obj[11].toString());
 			String toDepartmentName = (String)obj[12];
@@ -104,6 +111,13 @@ public class StockMovementDaoImpl implements StockMovementDao{
                                             .getSingleResult()).longValue();
 
 	    return new StockFormatDto(dtoList, totalCount);
+    }
+
+    @Override
+    public void addStock(StockMovement st) {
+        // TODO Auto-generated method stub
+        Session session = sessionFactory.getCurrentSession();
+		session.save(st);
     }
     
 }
