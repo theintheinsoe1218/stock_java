@@ -30,40 +30,40 @@ public class ReportDaoImpl implements ReportDao{
 		double re = 0;
 		double receiptAmount = 0;
 
-		String sqlOpening = "SELECT st.stockMovementId,st.movementDate,st.itemId, it.itemName, it.unitId, un.unitName, st.toDepartmentId,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'OPENING' \r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS opening\r\n"
-				+ "FROM stockmovement st\r\n"
-				+ "LEFT JOIN item it ON it.itemId = st.itemId\r\n"
-				+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
-				+ "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n"
-				+ "GROUP BY st.movementDate, it.itemId\r\n"
-				+ "ORDER BY st.movementDate";
-		List<Object[]> openingList = session.createNativeQuery(sqlOpening)
-				.setParameter("departmentId", departmentId)
-				.setParameter("fromDate", strfromDate)
-				.setParameter("toDate", strtoDate)
-				.getResultList();
+		// String sqlOpening = "SELECT st.stockMovementId,st.movementDate,st.itemId, it.itemName, it.unitId, un.unitName, st.toDepartmentId,\r\n"
+		// 		+ "SUM(\r\n"
+		// 		+ "      CASE \r\n"
+		// 		+ "          WHEN st.movementType = 'OPENING' \r\n"
+		// 		+ "          AND st.toDepartmentId = :departmentId\r\n"
+		// 		+ "          THEN st.qty\r\n"
+		// 		+ "          ELSE 0\r\n"
+		// 		+ "        END\r\n"
+		// 		+ "    ) AS opening\r\n"
+		// 		+ "FROM stockmovement st\r\n"
+		// 		+ "LEFT JOIN item it ON it.itemId = st.itemId\r\n"
+		// 		+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
+		// 		+ "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n"
+		// 		+ "GROUP BY st.movementDate, it.itemId\r\n"
+		// 		+ "ORDER BY st.movementDate";
+		// List<Object[]> openingList = session.createNativeQuery(sqlOpening)
+		// 		.setParameter("departmentId", departmentId)
+		// 		.setParameter("fromDate", strfromDate)
+		// 		.setParameter("toDate", strtoDate)
+		// 		.getResultList();
 
-		for(Object[] obj:openingList) {
-		Date movementDate = (Date)obj[1];
-		int open = 0;
-
-		
-		
-		if(obj[7]!=null)
-		open = Integer.parseInt(obj[7].toString());
+		// for(Object[] obj:openingList) {
+		// Date movementDate = (Date)obj[1];
+		// int open = 0;
 
 		
-		opening = open;
 		
-		}
+		// if(obj[7]!=null)
+		// open = Integer.parseInt(obj[7].toString());
+
+		
+		// opening = open;
+		
+		// }
 		
 		
 		
@@ -121,7 +121,7 @@ public class ReportDaoImpl implements ReportDao{
 										.setParameter("departmentId", departmentId)
 										.setParameter("fromDate", strfromDate)
 										.getResultList();
-		if(opening == 0) {
+		
 			for(Object[] obj:opList) {
 				Date movementDate = (Date)obj[1];
 				int stockIn = 0;
@@ -145,9 +145,9 @@ public class ReportDaoImpl implements ReportDao{
 				opening += stockIn-stockOut+adjustIn-adjustOut-waste;
 				
 			}
-		}
 		
 		
+		System.out.println(opening);
 		String sqlTwo = "SELECT st.stockMovementId,st.movementDate,st.itemId, it.itemName, it.unitId, un.unitName, st.toDepartmentId,\r\n"
 				+ "SUM(\r\n"
 				+ "      CASE \r\n"
@@ -189,7 +189,15 @@ public class ReportDaoImpl implements ReportDao{
 				+ "          THEN st.qty\r\n"
 				+ "          ELSE 0\r\n"
 				+ "        END\r\n"
-				+ "    ) AS waste, st.remark\r\n"
+				+ "    ) AS waste, st.remark,\r\n"
+				+ "SUM(\r\n" 
+				+ "CASE\r\n" 
+				+ "WHEN st.movementType = 'OPENING'\r\n"
+				+ "AND st.toDepartmentId = :departmentId\r\n" 
+				+ "THEN st.qty\r\n" 
+				+ "ELSE 0\r\n" 
+				+ "END\r\n" 
+				+ ") AS opening\r\n"
 				+ "FROM stockmovement st\r\n"
 				+ "LEFT JOIN item it ON it.itemId = st.itemId\r\n"
 				+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
@@ -215,7 +223,7 @@ public class ReportDaoImpl implements ReportDao{
 			int adjustIn = 0;
 			int adjustOut = 0;
 			int waste = 0;
-			 
+			int openn = 0;
 			 
 			if(obj[7]!=null)
 				stockIn = Integer.parseInt(obj[7].toString());
@@ -228,15 +236,17 @@ public class ReportDaoImpl implements ReportDao{
 			if(obj[11]!=null)
 				waste = Integer.parseInt(obj[11].toString());
 			String remark = (String)obj[12];
-		
-
-			ReportStockBalanceDto dto = new ReportStockBalanceDto(stockMovementId,opening,stockIn,stockOut,adjustIn,adjustOut,waste,remark);
+			if(obj[13]!=null)
+				openn = Integer.parseInt(obj[13].toString());
+			int rowOpening = opening + openn;
+			int closing = rowOpening + stockIn - stockOut + adjustIn - adjustOut - waste;
+			ReportStockBalanceDto dto = new ReportStockBalanceDto(stockMovementId,openn,stockIn,stockOut,adjustIn,adjustOut,waste,remark);
 			dto.setMovementDate(movementDate);
 			dto.setItemDto(new ItemDto(itemId,itemName,unitId,unitName));
 			
-			dto.setClosing(dto.getOpening());
-			opening = dto.getClosing();
+			dto.setClosing(closing);
 			dtoList.add(dto);
+			opening = dto.getClosing();
 		}
 		
 
