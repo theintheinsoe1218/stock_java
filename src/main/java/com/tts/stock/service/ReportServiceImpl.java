@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tts.stock.dao.ReportDao;
+import com.tts.stock.dto.ReportFormatDto;
 import com.tts.stock.dto.ReportStockBalanceDto;
 
 @Service
@@ -17,9 +18,16 @@ public class ReportServiceImpl implements ReportService{
 	
 	@Transactional(readOnly=true)
 	@Override
-	public List<ReportStockBalanceDto> getStockBalanceReport(Date fromDate, Date toDate, int departmentId) {
+	public ReportFormatDto getStockBalanceReport(Date fromDate, Date toDate, int departmentId,
+			String deparmentName, int page, int itemPerPage) {
 		// TODO Auto-generated method stub
-		return reportDao.getStockBalanceReport(fromDate,toDate,departmentId);
+		
+		if("Store".equals(deparmentName)) {
+			return reportDao.getStoreBalanceReport(fromDate,toDate,departmentId,page,itemPerPage);
+		}else {
+			
+			return reportDao.getOtherBalanceReport(fromDate,toDate,departmentId,page,itemPerPage);
+		}
 	}
 	
 	

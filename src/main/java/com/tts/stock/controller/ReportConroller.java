@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.tts.stock.dto.ReportFormatDto;
 import com.tts.stock.dto.ReportStockBalanceDto;
 import com.tts.stock.service.ReportService;
 
@@ -21,11 +21,14 @@ public class ReportConroller {
 	ReportService reportService;
 	
 	@GetMapping("report/stockbalance")
-	public  List<ReportStockBalanceDto> getStockBalanceReport(@RequestParam(name="fromDate",required=false)@DateTimeFormat(pattern="dd-MM-yyyy")Date fromDate,
+	public  ReportFormatDto getStockBalanceReport(@RequestParam(name="fromDate",required=false)@DateTimeFormat(pattern="dd-MM-yyyy")Date fromDate,
 			@RequestParam(name="toDate",required=false)@DateTimeFormat(pattern="dd-MM-yyyy")Date toDate,
-			@RequestParam(name="departmentId",defaultValue = "0")int departmentId){
+			@RequestParam(name="departmentId",defaultValue = "0")int departmentId,
+			@RequestParam(name="departmentName",defaultValue = "")String departmentName,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
+		    @RequestParam(name = "itemPerPage", required = false, defaultValue = "0") int itemPerPage){
 		try {
-			return reportService.getStockBalanceReport(fromDate,toDate,departmentId);
+			return reportService.getStockBalanceReport(fromDate,toDate,departmentId,departmentName,page,itemPerPage);
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();

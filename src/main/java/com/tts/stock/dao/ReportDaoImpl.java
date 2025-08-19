@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.tts.stock.dto.ItemDto;
+import com.tts.stock.dto.ReportFormatDto;
 import com.tts.stock.dto.ReportStockBalanceDto;
+import com.tts.stock.dto.StockFormatDto;
 import com.tts.stock.util.ConvertDate;
 
 @Repository
@@ -18,240 +20,283 @@ public class ReportDaoImpl implements ReportDao{
 	@Autowired
 	SessionFactory sessionFactory;
 
+	
+
 	@Override
-	public List<ReportStockBalanceDto> getStockBalanceReport(Date fromDate, Date toDate, int departmentId) {
+	public ReportFormatDto getStoreBalanceReport(Date fromDate, Date toDate, int departmentId,int page, int itemPerPage) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.getCurrentSession();
 		String strfromDate = ConvertDate.convertDateToStringYearMonthDay(fromDate);
 		String strtoDate = ConvertDate.convertDateToStringYearMonthDay(toDate);
-		String sqlCu = "";
-		
-		int opening = 0;
-		double re = 0;
-		double receiptAmount = 0;
-
-		// String sqlOpening = "SELECT st.stockMovementId,st.movementDate,st.itemId, it.itemName, it.unitId, un.unitName, st.toDepartmentId,\r\n"
-		// 		+ "SUM(\r\n"
-		// 		+ "      CASE \r\n"
-		// 		+ "          WHEN st.movementType = 'OPENING' \r\n"
-		// 		+ "          AND st.toDepartmentId = :departmentId\r\n"
-		// 		+ "          THEN st.qty\r\n"
-		// 		+ "          ELSE 0\r\n"
-		// 		+ "        END\r\n"
-		// 		+ "    ) AS opening\r\n"
-		// 		+ "FROM stockmovement st\r\n"
-		// 		+ "LEFT JOIN item it ON it.itemId = st.itemId\r\n"
-		// 		+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
-		// 		+ "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n"
-		// 		+ "GROUP BY st.movementDate, it.itemId\r\n"
-		// 		+ "ORDER BY st.movementDate";
-		// List<Object[]> openingList = session.createNativeQuery(sqlOpening)
-		// 		.setParameter("departmentId", departmentId)
-		// 		.setParameter("fromDate", strfromDate)
-		// 		.setParameter("toDate", strtoDate)
-		// 		.getResultList();
-
-		// for(Object[] obj:openingList) {
-		// Date movementDate = (Date)obj[1];
-		// int open = 0;
-
+		int offset = (page - 1 ) * itemPerPage;
+		String sqlLimit = "";
+		if(itemPerPage != 0) {
+			sqlLimit += "LIMIT "+ itemPerPage+"\r\n"+"OFFSET "+offset+"\r\n";
+		}
 		
 		
-		// if(obj[7]!=null)
-		// open = Integer.parseInt(obj[7].toString());
-
-		
-		// opening = open;
-		
-		// }
-		
-		
-		
-		String sqlOne = "SELECT st.stockMovementId,st.movementDate,st.itemId, it.itemName, it.unitId, un.unitName, st.toDepartmentId,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'IN' \r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          OR  st.fromDepartmentId <> :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS stockIN,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'out'\r\n"
-				+ "          AND st.fromDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS stockOut,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'ADJUST_IN'\r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS adjustIn,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'ADJUST_OUT'\r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS adjustOut,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'WASTE'\r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS waste, st.remark\r\n"
-				+ "FROM stockmovement st\r\n"
-				+ "LEFT JOIN item it ON it.itemId = st.itemId\r\n"
+		String sqlData = "SELECT \r\n"
+				+ "    it.itemId,\r\n"
+				+ "    it.itemName,\r\n"
+				+ "     it.unitId,\r\n"
+				+ "    un.unitName,\r\n"
+				+ "IFNULL((\r\n"
+				+ "    \r\n"
+				+ "    SELECT SUM(sm.qty)\r\n"
+				+ "    FROM stockmovement sm\r\n"
+				+ "    WHERE sm.itemId = it.itemId\r\n"
+				+ "      AND sm.toDepartmentId = :departmentId\r\n"
+				+ "      AND sm.movementType = 'OPENING'\r\n"
+				+ "      AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "), \r\n"
+				+ "(\r\n"
+				+ "   \r\n"
+				+ "    SELECT \r\n"
+				+ "        IFNULL(SUM(CASE WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('IN','ADJUST_IN','OPENING') \r\n"
+				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
+				+ "      - IFNULL(SUM(CASE WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') \r\n"
+				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
+				+ "    FROM stockmovement sm\r\n"
+				+ "    WHERE sm.itemId = it.itemId\r\n"
+				+ "      AND sm.movementDate < :fromDate\r\n"
+				+ ")\r\n"
+				+ ") AS opening_balance,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.toDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'IN'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS stock_in,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'OUT'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS stock_out,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.toDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'ADJUST_IN'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS adjust_in,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'ADJUST_OUT'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS adjust_out,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'WASTE'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS waste,\r\n"
+				+ "    (\r\n"
+				+ "        (\r\n"
+				+ "            IFNULL((\r\n"
+				+ "                SELECT SUM(\r\n"
+				+ "                    CASE \r\n"
+				+ "                        WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OPENING','IN','ADJUST_IN') \r\n"
+				+ "                            THEN sm.qty\r\n"
+				+ "                        WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') \r\n"
+				+ "                            THEN -sm.qty\r\n"
+				+ "                        ELSE 0\r\n"
+				+ "                    END\r\n"
+				+ "                )\r\n"
+				+ "                FROM stockmovement sm\r\n"
+				+ "                WHERE sm.itemId = it.itemId\r\n"
+				+ "                  AND sm.movementDate <= '2025-08-18'\r\n"
+				+ "            ),0)\r\n"
+				+ "        )\r\n"
+				+ "    ) AS closing_balance"
+				+ "\r\n"
+				+ "FROM item it\r\n"
 				+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
-				+ "WHERE st.movementDate  < :fromDate\r\n"
-				+ "GROUP BY st.movementDate, it.itemId\r\n"
-				+ "ORDER BY st.movementDate";
-		
-		
-		List<Object[]> opList = session.createNativeQuery(sqlOne)
-										.setParameter("departmentId", departmentId)
-										.setParameter("fromDate", strfromDate)
-										.getResultList();
-		
-			for(Object[] obj:opList) {
-				Date movementDate = (Date)obj[1];
-				int stockIn = 0;
-				int stockOut = 0;
-				int adjustIn = 0;
-				int adjustOut = 0;
-				int waste = 0;
-				 
-				 
-				if(obj[7]!=null)
-					stockIn = Integer.parseInt(obj[7].toString());
-				if(obj[8]!=null)
-					stockOut = Integer.parseInt(obj[8].toString());
-				if(obj[9]!=null)
-					adjustIn = Integer.parseInt(obj[9].toString());
-				if(obj[10]!=null)
-					adjustOut = Integer.parseInt(obj[10].toString());
-				if(obj[11]!=null)
-					waste = Integer.parseInt(obj[11].toString());
-			
-				opening += stockIn-stockOut+adjustIn-adjustOut-waste;
-				
-			}
-		
-		
-		System.out.println(opening);
-		String sqlTwo = "SELECT st.stockMovementId,st.movementDate,st.itemId, it.itemName, it.unitId, un.unitName, st.toDepartmentId,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'IN' \r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          OR  st.fromDepartmentId <> :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS stockIN,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'out'\r\n"
-				+ "          AND st.fromDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS stockOut,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'ADJUST_IN'\r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS adjustIn,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'ADJUST_OUT'\r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS adjustOut,\r\n"
-				+ "SUM(\r\n"
-				+ "      CASE \r\n"
-				+ "          WHEN st.movementType = 'WASTE'\r\n"
-				+ "          AND st.toDepartmentId = :departmentId\r\n"
-				+ "          THEN st.qty\r\n"
-				+ "          ELSE 0\r\n"
-				+ "        END\r\n"
-				+ "    ) AS waste, st.remark,\r\n"
-				+ "SUM(\r\n" 
-				+ "CASE\r\n" 
-				+ "WHEN st.movementType = 'OPENING'\r\n"
-				+ "AND st.toDepartmentId = :departmentId\r\n" 
-				+ "THEN st.qty\r\n" 
-				+ "ELSE 0\r\n" 
-				+ "END\r\n" 
-				+ ") AS opening\r\n"
-				+ "FROM stockmovement st\r\n"
-				+ "LEFT JOIN item it ON it.itemId = st.itemId\r\n"
-				+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
-				+ "WHERE st.movementDate BETWEEN :fromDate AND :toDate\r\n"
-				+ "GROUP BY st.movementDate, it.itemId\r\n"
-				+ "ORDER BY st.movementDate";
+				+ "ORDER BY it.itemName\r\n"
+				+ sqlLimit;
 		List<ReportStockBalanceDto> dtoList = new ArrayList<ReportStockBalanceDto>();
-		List<Object[]> objList = session.createNativeQuery(sqlTwo)
+		
+		
+		List<Object[]> objList = session.createNativeQuery(sqlData)
 										.setParameter("departmentId", departmentId)
 										.setParameter("fromDate", strfromDate)
 										.setParameter("toDate", strtoDate)
 										.getResultList();
-								
+					
 		for(Object[] obj:objList) {
-			int stockMovementId = Integer.parseInt(obj[0].toString());
-			Date movementDate = (Date)obj[1];
-			int itemId = Integer.parseInt(obj[2].toString());
-			String itemName = (String)obj[3];
-			int unitId = Integer.parseInt(obj[4].toString());
-			String unitName = (String)obj[5];
-			int stockIn = 0;
-			int stockOut = 0;
-			int adjustIn = 0;
-			int adjustOut = 0;
-			int waste = 0;
-			int openn = 0;
-			 
-			if(obj[7]!=null)
-				stockIn = Integer.parseInt(obj[7].toString());
-			if(obj[8]!=null)
-				stockOut = Integer.parseInt(obj[8].toString());
-			if(obj[9]!=null)
-				adjustIn = Integer.parseInt(obj[9].toString());
-			if(obj[10]!=null)
-				adjustOut = Integer.parseInt(obj[10].toString());
-			if(obj[11]!=null)
-				waste = Integer.parseInt(obj[11].toString());
-			String remark = (String)obj[12];
-			if(obj[13]!=null)
-				openn = Integer.parseInt(obj[13].toString());
-			int rowOpening = opening + openn;
-			int closing = rowOpening + stockIn - stockOut + adjustIn - adjustOut - waste;
-			ReportStockBalanceDto dto = new ReportStockBalanceDto(stockMovementId,openn,stockIn,stockOut,adjustIn,adjustOut,waste,remark);
-			dto.setMovementDate(movementDate);
+
+			int itemId = Integer.parseInt(obj[0].toString());
+			String itemName = (String)obj[1];
+			int unitId = Integer.parseInt(obj[2].toString());
+			String unitName = (String)obj[3];
+			int opening = Integer.parseInt(obj[4].toString());
+			int stockIn = Integer.parseInt(obj[5].toString());
+			int stockOut = Integer.parseInt(obj[6].toString());
+			int adjustIn = Integer.parseInt(obj[7].toString());
+			int adjustOut = Integer.parseInt(obj[8].toString());
+			int waste = Integer.parseInt(obj[9].toString());
+			int closing = Integer.parseInt(obj[10].toString());
+			ReportStockBalanceDto dto = new ReportStockBalanceDto(opening,stockIn,stockOut,adjustIn,adjustOut,waste,closing);
+
 			dto.setItemDto(new ItemDto(itemId,itemName,unitId,unitName));
 			
-			dto.setClosing(closing);
 			dtoList.add(dto);
-			opening = dto.getClosing();
+
 		}
 		
 
+	    String sqlCount = "SELECT COUNT(*) \r\n" + 
+                        "FROM item it";
+	    long totalCount = ((Number) session.createNativeQuery(sqlCount)
+                                            .getSingleResult()).longValue();
+
+	    return new ReportFormatDto(dtoList, totalCount);
 		
-	
-		return dtoList;
+
+	}
+
+	@Override
+	public ReportFormatDto getOtherBalanceReport(Date fromDate, Date toDate, int departmentId, int page, int itemPerPage) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.getCurrentSession();
+		String strfromDate = ConvertDate.convertDateToStringYearMonthDay(fromDate);
+		String strtoDate = ConvertDate.convertDateToStringYearMonthDay(toDate);
+		int offset = (page - 1 ) * itemPerPage;
+		
+		String sqlData = "SELECT \r\n"
+				+ "    it.itemId,\r\n"
+				+ "    it.itemName,\r\n"
+				+ "    it.unitId,\r\n"
+				+ "    un.unitName,\r\n"
+				+ "IFNULL((\r\n"
+				+ "    \r\n"
+				+ "    SELECT SUM(sm.qty)\r\n"
+				+ "    FROM stockmovement sm\r\n"
+				+ "    WHERE sm.itemId = it.itemId\r\n"
+				+ "      AND sm.toDepartmentId = :departmentId\r\n"
+				+ "      AND sm.movementType = 'OPENING'\r\n"
+				+ "      AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "), \r\n"
+				+ "(\r\n"
+				+ "   \r\n"
+				+ "    SELECT \r\n"
+				+ "        IFNULL(SUM(CASE WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_IN','OPENING') \r\n"
+				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
+				+ "      - IFNULL(SUM(CASE WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') \r\n"
+				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
+				+ "    FROM stockmovement sm\r\n"
+				+ "    WHERE sm.itemId = it.itemId\r\n"
+				+ "      AND sm.movementDate < :fromDate\r\n"
+				+ ")\r\n"
+				+ ") AS opening_balance,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.toDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'OUT'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS stock_in,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'OUT'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS stock_out,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.toDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'ADJUST_IN'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS adjust_in,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'ADJUST_OUT'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS adjust_out,\r\n"
+				+ "    IFNULL((\r\n"
+				+ "        SELECT SUM(sm.qty)\r\n"
+				+ "        FROM stockmovement sm\r\n"
+				+ "        WHERE sm.itemId = it.itemId\r\n"
+				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.movementType = 'WASTE'\r\n"
+				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
+				+ "    ),0) AS waste,\r\n"
+				+ "    (\r\n"
+				+ "        (\r\n"
+				+ "            IFNULL((\r\n"
+				+ "                SELECT SUM(\r\n"
+				+ "                    CASE \r\n"
+				+ "                        WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OPENING','OUT','ADJUST_IN') \r\n"
+				+ "                            THEN sm.qty\r\n"
+				+ "                        WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') \r\n"
+				+ "                            THEN -sm.qty\r\n"
+				+ "                        ELSE 0\r\n"
+				+ "                    END\r\n"
+				+ "                )\r\n"
+				+ "                FROM stockmovement sm\r\n"
+				+ "                WHERE sm.itemId = it.itemId\r\n"
+				+ "                  AND sm.movementDate <= :fromDate\r\n"
+				+ "            ),0)\r\n"
+				+ "        )\r\n"
+				+ "    ) AS closing_balance\r\n"
+				+ "\r\n"
+				+ "FROM item it\r\n"
+				+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
+				+ "ORDER BY it.itemName\r\n"
+				+ "LIMIT :itemPerPage\r\n"
+				+ "OFFSET :offset";
+		List<ReportStockBalanceDto> dtoList = new ArrayList<ReportStockBalanceDto>();
+		List<Object[]> objList = session.createNativeQuery(sqlData)
+										.setParameter("departmentId", departmentId)
+										.setParameter("fromDate", strfromDate)
+										.setParameter("toDate", strtoDate)
+										.setParameter("itemPerPage", itemPerPage)
+										.setParameter("offset", offset)
+										.getResultList();
+								
+		for(Object[] obj:objList) {
+			int itemId = Integer.parseInt(obj[0].toString());
+			String itemName = (String)obj[1];
+			int unitId = Integer.parseInt(obj[2].toString());
+			String unitName = (String)obj[3];
+			int opening = Integer.parseInt(obj[4].toString());
+			int stockIn = Integer.parseInt(obj[5].toString());
+			int stockOut = Integer.parseInt(obj[6].toString());
+			int adjustIn = Integer.parseInt(obj[7].toString());
+			int adjustOut = Integer.parseInt(obj[8].toString());
+			int waste = Integer.parseInt(obj[9].toString());
+			int closing = Integer.parseInt(obj[10].toString());
+			ReportStockBalanceDto dto = new ReportStockBalanceDto(opening,stockIn,stockOut,adjustIn,adjustOut,waste,closing);
+
+			dto.setItemDto(new ItemDto(itemId,itemName,unitId,unitName));
+			
+			dtoList.add(dto);
+		}
+		
+
+	    String sqlCount = "SELECT COUNT(*) \r\n" + 
+                        "FROM item it";
+	    long totalCount = ((Number) session.createNativeQuery(sqlCount)
+                                            .getSingleResult()).longValue();
+
+	    return new ReportFormatDto(dtoList, totalCount);
 	}
 }

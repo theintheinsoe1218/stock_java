@@ -19,19 +19,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportStockBalanceDto {
-	public ReportStockBalanceDto(int stockMovementId,int opening, int stockIn, int stockOut, int adjustIn, int adjustOut,
-			int waste, String remark) {
+	
+	
+	public ReportStockBalanceDto(int opening, int stockIn, int stockOut, int adjustIn, int adjustOut, int waste,
+			int closing) {
 		// TODO Auto-generated constructor stub
-		this.stockMovementId = stockMovementId;
 		this.opening = opening;
 		this.stockIn = stockIn;
 		this.stockOut = stockOut;
 		this.adjustIn = adjustIn;
 		this.adjustOut = adjustOut;
-		this.remark = remark;
-		
+		this.closing = closing;
 	}
-	
+
 	private int stockMovementId;
 	@JsonSerialize(using = DateFormatSerializer.class)
 	@JsonDeserialize(using = DateFormatDeserializer.class)
