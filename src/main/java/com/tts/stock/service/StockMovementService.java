@@ -10,5 +10,9 @@ public interface StockMovementService {
     StockFormatDto getStock(int page, int itemPerPage, Date fromDate, Date toDate);
 
     StockMovementDto addStock(StockMovementDto dto);
+
+	StockMovementDto updateStock(StockMovementDto dto);
+
+	int deleteStock(int stockMovementId);
     
 }

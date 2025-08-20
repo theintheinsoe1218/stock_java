@@ -29,7 +29,7 @@ public class StockMovementDaoImpl implements StockMovementDao{
 		int offset = (page - 1 ) * itemPerPage;
 		
 		String sqlData = "SELECT st.stockMovementId, st.itemId,it.itemName,it.unitId,u.unitName,st.userAccountId,ua.profileName,ua.userName,st.movementType,st.fromDepartmentId, fde.departmentName as fromDepartmentName,st.toDepartmentId,tde.departmentName as toDepartmentName,\r\n" + 
-                        "st.qty,st.remark,st.movementDate,st.created_at,st.updated_at\r\n" + 
+                        "st.qty,st.remark,st.movementDate,st.created_at,st.updated_at,st.status\r\n" + 
                         "FROM stockmovement st\r\n" + 
                         "LEFT JOIN item it on it.itemId = st.itemId\r\n" + 
                         "LEFT JOIN unit u on u.unitId = it.unitId\r\n" + 
@@ -43,7 +43,7 @@ public class StockMovementDaoImpl implements StockMovementDao{
                         "OFFSET :offset";
 		
 		String sqlDataAll = "SELECT st.stockMovementId, st.itemId,it.itemName,it.unitId,u.unitName,st.userAccountId,ua.profileName,ua.userName,st.movementType,st.fromDepartmentId, fde.departmentName as fromDepartmentName,st.toDepartmentId,tde.departmentName as toDepartmentName,\r\n" + //
-                        "st.qty,st.remark,st.movementDate,st.created_at,st.updated_at\r\n" + 
+                        "st.qty,st.remark,st.movementDate,st.created_at,st.updated_at,st.status\r\n" + 
                         "FROM stockmovement st\r\n" + 
                         "LEFT JOIN item it on it.itemId = st.itemId\r\n" + 
                         "LEFT JOIN unit u on u.unitId = it.unitId\r\n" + 
@@ -93,8 +93,9 @@ public class StockMovementDaoImpl implements StockMovementDao{
             Date movementDate = (Date)obj[15];
 			Date created_at = (Date)obj[16];
 			Date updated_at = (Date)obj[17];
-			
+			Boolean status = (Boolean)obj[18];
 			StockMovementDto dto = new StockMovementDto(stockMovementId,movementType,qty,remark,movementDate,created_at,updated_at);
+			dto.setStatus(status);
 			dto.setItemDto(new ItemDto(itemId,itemName,unitId,unitName));
             dto.setUserAccountDto(new UserAccountDto(userAccountId,profileName,userName));
             dto.setFromDepartmentDto(new DepartmentDto(fromDepartmentId,fromDepartmentName));
@@ -119,5 +120,20 @@ public class StockMovementDaoImpl implements StockMovementDao{
         Session session = sessionFactory.getCurrentSession();
 		session.save(st);
     }
+
+	@Override
+	public void updateStock(StockMovement st) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.getCurrentSession();
+		session.update(st);
+	}
+
+	@Override
+	public void deleteStock(int stockMovementId) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.getCurrentSession();
+		session.createNativeQuery("UPDATE stockmovement s SET s.status=0 WHERE s.`status`=1 AND s.stockMovementId=:stockMovementId ")
+	       .setParameter("stockMovementId", stockMovementId).executeUpdate();
+	}
     
 }

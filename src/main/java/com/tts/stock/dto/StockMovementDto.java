@@ -29,6 +29,7 @@ public class StockMovementDto {
         this.movementDate = movementDate;
         this.created_at = created_at;
         this.updated_at = updated_at;
+
     }
     private int stockMovementId;
 	private ItemDto itemDto;
@@ -48,4 +49,6 @@ public class StockMovementDto {
     @JsonSerialize(using = DateTimeFormatSerializer.class)
 	@JsonDeserialize(using = DateTimeFormatDeserializer.class)
 	private Date updated_at;
+
 }
+

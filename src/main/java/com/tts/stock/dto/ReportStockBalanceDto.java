@@ -30,6 +30,7 @@ public class ReportStockBalanceDto {
 		this.adjustIn = adjustIn;
 		this.adjustOut = adjustOut;
 		this.closing = closing;
+		this.waste = waste;
 	}
 
 	private int stockMovementId;

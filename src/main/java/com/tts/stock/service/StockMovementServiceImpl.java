@@ -44,5 +44,36 @@ public class StockMovementServiceImpl implements StockMovementService{
         stMoveDao.addStock(st);
         return dto;
     }
+
+    @Transactional(readOnly=false)
+	@Override
+	public StockMovementDto updateStock(StockMovementDto dto) {
+		// TODO Auto-generated method stub
+    	StockMovement st = new StockMovement();
+    	st.setStockMovementId(dto.getStockMovementId());
+        st.setItemId(dto.getItemDto().getItemId());
+        st.setUserAccountId(User.getUserId());
+        st.setMovementType(dto.getMovementType());
+        if(dto.getFromDepartmentDto().getDepartmentId() != 0){
+            st.setFromDepartmentId(dto.getFromDepartmentDto().getDepartmentId());
+        }
+        st.setToDepartmentId(dto.getToDepartmentDto().getDepartmentId());
+        st.setQty(dto.getQty());
+        st.setRemark(dto.getRemark());
+        st.setMovementDate(dto.getMovementDate());
+        st.setStatus(dto.isStatus());
+        st.setCreated_at(dto.getCreated_at());
+        st.setUpdated_at(new Date());
+        stMoveDao.updateStock(st);
+        return dto;
+	}
+
+    @Transactional(readOnly=false)
+	@Override
+	public int deleteStock(int stockMovementId) {
+		// TODO Auto-generated method stub
+    	stMoveDao.deleteStock(stockMovementId);
+		return stockMovementId;
+	}
     
 }

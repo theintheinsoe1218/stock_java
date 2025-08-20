@@ -10,5 +10,9 @@ public interface StockMovementDao {
     StockFormatDto getStock(int page, int itemPerPage, Date fromDate, Date toDate);
 
     void addStock(StockMovement st);
+
+	void updateStock(StockMovement st);
+
+	void deleteStock(int stockMovementId);
     
 }

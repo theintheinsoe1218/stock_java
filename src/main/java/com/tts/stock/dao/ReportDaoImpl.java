@@ -47,15 +47,18 @@ public class ReportDaoImpl implements ReportDao{
 				+ "    WHERE sm.itemId = it.itemId\r\n"
 				+ "      AND sm.toDepartmentId = :departmentId\r\n"
 				+ "      AND sm.movementType = 'OPENING'\r\n"
+				+ "		 AND sm.`status` = 1\r\n"
 				+ "      AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "), \r\n"
 				+ "(\r\n"
 				+ "   \r\n"
 				+ "    SELECT \r\n"
-				+ "        IFNULL(SUM(CASE WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('IN','ADJUST_IN','OPENING') \r\n"
+				+ "        IFNULL(SUM(CASE WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('IN','ADJUST_IN','OPENING') AND sm.`status` = 1 \r\n"
 				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
-				+ "      - IFNULL(SUM(CASE WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') \r\n"
+				+ "      - IFNULL(SUM(CASE WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') AND sm.`status` = 1 \r\n"
 				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
+				+"       - IFNULL(SUM(CASE WHEN sm.fromDepartmentId = 1 AND sm.movementType IN('OUT') AND sm.`status` = 1\r\n"
+				+ "		                  THEN sm.qty ELSE 0 END),0)\r\n"
 				+ "    FROM stockmovement sm\r\n"
 				+ "    WHERE sm.itemId = it.itemId\r\n"
 				+ "      AND sm.movementDate < :fromDate\r\n"
@@ -67,6 +70,7 @@ public class ReportDaoImpl implements ReportDao{
 				+ "        WHERE sm.itemId = it.itemId\r\n"
 				+ "          AND sm.toDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'IN'\r\n"
+				+"           AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS stock_in,\r\n"
 				+ "    IFNULL((\r\n"
@@ -75,6 +79,7 @@ public class ReportDaoImpl implements ReportDao{
 				+ "        WHERE sm.itemId = it.itemId\r\n"
 				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'OUT'\r\n"
+				+"           AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS stock_out,\r\n"
 				+ "    IFNULL((\r\n"
@@ -83,22 +88,25 @@ public class ReportDaoImpl implements ReportDao{
 				+ "        WHERE sm.itemId = it.itemId\r\n"
 				+ "          AND sm.toDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'ADJUST_IN'\r\n"
+				+"           AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS adjust_in,\r\n"
 				+ "    IFNULL((\r\n"
 				+ "        SELECT SUM(sm.qty)\r\n"
 				+ "        FROM stockmovement sm\r\n"
 				+ "        WHERE sm.itemId = it.itemId\r\n"
-				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.toDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'ADJUST_OUT'\r\n"
+				+"           AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS adjust_out,\r\n"
 				+ "    IFNULL((\r\n"
 				+ "        SELECT SUM(sm.qty)\r\n"
 				+ "        FROM stockmovement sm\r\n"
 				+ "        WHERE sm.itemId = it.itemId\r\n"
-				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.toDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'WASTE'\r\n"
+				+"           AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS waste,\r\n"
 				+ "    (\r\n"
@@ -106,16 +114,18 @@ public class ReportDaoImpl implements ReportDao{
 				+ "            IFNULL((\r\n"
 				+ "                SELECT SUM(\r\n"
 				+ "                    CASE \r\n"
-				+ "                        WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OPENING','IN','ADJUST_IN') \r\n"
+				+ "                        WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OPENING','IN','ADJUST_IN') AND sm.`status` = 1 \r\n"
 				+ "                            THEN sm.qty\r\n"
-				+ "                        WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') \r\n"
+				+ "                        WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('ADJUST_OUT','WASTE') AND sm.`status` = 1 \r\n"
+				+ "                            THEN -sm.qty\r\n"
+				+ "                        WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT') AND sm.`status` = 1\r\n"
 				+ "                            THEN -sm.qty\r\n"
 				+ "                        ELSE 0\r\n"
 				+ "                    END\r\n"
 				+ "                )\r\n"
 				+ "                FROM stockmovement sm\r\n"
 				+ "                WHERE sm.itemId = it.itemId\r\n"
-				+ "                  AND sm.movementDate <= '2025-08-18'\r\n"
+				+ "                  AND sm.movementDate <= :fromDate\r\n"
 				+ "            ),0)\r\n"
 				+ "        )\r\n"
 				+ "    ) AS closing_balance"
@@ -159,10 +169,12 @@ public class ReportDaoImpl implements ReportDao{
                         "FROM item it";
 	    long totalCount = ((Number) session.createNativeQuery(sqlCount)
                                             .getSingleResult()).longValue();
-
+	    if(itemPerPage == 0) {
+	    	totalCount = 0;
+	    }
 	    return new ReportFormatDto(dtoList, totalCount);
 		
-
+	    
 	}
 
 	@Override
@@ -172,7 +184,10 @@ public class ReportDaoImpl implements ReportDao{
 		String strfromDate = ConvertDate.convertDateToStringYearMonthDay(fromDate);
 		String strtoDate = ConvertDate.convertDateToStringYearMonthDay(toDate);
 		int offset = (page - 1 ) * itemPerPage;
-		
+		String sqlLimit = "";
+		if(itemPerPage != 0) {
+			sqlLimit += "LIMIT "+ itemPerPage+"\r\n"+"OFFSET "+offset+"\r\n";
+		}
 		String sqlData = "SELECT \r\n"
 				+ "    it.itemId,\r\n"
 				+ "    it.itemName,\r\n"
@@ -185,14 +200,17 @@ public class ReportDaoImpl implements ReportDao{
 				+ "    WHERE sm.itemId = it.itemId\r\n"
 				+ "      AND sm.toDepartmentId = :departmentId\r\n"
 				+ "      AND sm.movementType = 'OPENING'\r\n"
+				+"       AND sm.`status` = 1\r\n"
 				+ "      AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "), \r\n"
 				+ "(\r\n"
 				+ "   \r\n"
 				+ "    SELECT \r\n"
-				+ "        IFNULL(SUM(CASE WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_IN','OPENING') \r\n"
+				+ "        IFNULL(SUM(CASE WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_IN','OPENING') AND sm.`status` = 1 \r\n"
 				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
-				+ "      - IFNULL(SUM(CASE WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') \r\n"
+				+ "      - IFNULL(SUM(CASE WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('ADJUST_OUT','WASTE') AND sm.`status` = 1 \r\n"
+				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
+				+ "      - IFNULL(SUM(CASE WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT') AND sm.`status` = 1 \r\n"
 				+ "                        THEN sm.qty ELSE 0 END),0)\r\n"
 				+ "    FROM stockmovement sm\r\n"
 				+ "    WHERE sm.itemId = it.itemId\r\n"
@@ -205,6 +223,7 @@ public class ReportDaoImpl implements ReportDao{
 				+ "        WHERE sm.itemId = it.itemId\r\n"
 				+ "          AND sm.toDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'OUT'\r\n"
+				+"           AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS stock_in,\r\n"
 				+ "    IFNULL((\r\n"
@@ -213,6 +232,7 @@ public class ReportDaoImpl implements ReportDao{
 				+ "        WHERE sm.itemId = it.itemId\r\n"
 				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'OUT'\r\n"
+				+ "          AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS stock_out,\r\n"
 				+ "    IFNULL((\r\n"
@@ -221,22 +241,25 @@ public class ReportDaoImpl implements ReportDao{
 				+ "        WHERE sm.itemId = it.itemId\r\n"
 				+ "          AND sm.toDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'ADJUST_IN'\r\n"
+				+ "          AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS adjust_in,\r\n"
 				+ "    IFNULL((\r\n"
 				+ "        SELECT SUM(sm.qty)\r\n"
 				+ "        FROM stockmovement sm\r\n"
 				+ "        WHERE sm.itemId = it.itemId\r\n"
-				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.toDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'ADJUST_OUT'\r\n"
+				+ "          AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS adjust_out,\r\n"
 				+ "    IFNULL((\r\n"
 				+ "        SELECT SUM(sm.qty)\r\n"
 				+ "        FROM stockmovement sm\r\n"
 				+ "        WHERE sm.itemId = it.itemId\r\n"
-				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ "          AND sm.toDepartmentId = :departmentId\r\n"
 				+ "          AND sm.movementType = 'WASTE'\r\n"
+				+ "          AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
 				+ "    ),0) AS waste,\r\n"
 				+ "    (\r\n"
@@ -244,9 +267,11 @@ public class ReportDaoImpl implements ReportDao{
 				+ "            IFNULL((\r\n"
 				+ "                SELECT SUM(\r\n"
 				+ "                    CASE \r\n"
-				+ "                        WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OPENING','OUT','ADJUST_IN') \r\n"
+				+ "                        WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('OPENING','OUT','ADJUST_IN') AND sm.`status` = 1 \r\n"
 				+ "                            THEN sm.qty\r\n"
-				+ "                        WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT','ADJUST_OUT','WASTE') \r\n"
+				+ "                        WHEN sm.toDepartmentId = :departmentId AND sm.movementType IN ('ADJUST_OUT','WASTE') AND sm.`status` = 1 \r\n"
+				+ "                            THEN -sm.qty\r\n"
+				+ "                        WHEN sm.fromDepartmentId = :departmentId AND sm.movementType IN ('OUT') AND sm.`status` = 1 \r\n"
 				+ "                            THEN -sm.qty\r\n"
 				+ "                        ELSE 0\r\n"
 				+ "                    END\r\n"
@@ -261,15 +286,12 @@ public class ReportDaoImpl implements ReportDao{
 				+ "FROM item it\r\n"
 				+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
 				+ "ORDER BY it.itemName\r\n"
-				+ "LIMIT :itemPerPage\r\n"
-				+ "OFFSET :offset";
+				+ sqlLimit;
 		List<ReportStockBalanceDto> dtoList = new ArrayList<ReportStockBalanceDto>();
 		List<Object[]> objList = session.createNativeQuery(sqlData)
 										.setParameter("departmentId", departmentId)
 										.setParameter("fromDate", strfromDate)
 										.setParameter("toDate", strtoDate)
-										.setParameter("itemPerPage", itemPerPage)
-										.setParameter("offset", offset)
 										.getResultList();
 								
 		for(Object[] obj:objList) {
@@ -296,7 +318,9 @@ public class ReportDaoImpl implements ReportDao{
                         "FROM item it";
 	    long totalCount = ((Number) session.createNativeQuery(sqlCount)
                                             .getSingleResult()).longValue();
-
+	    if(itemPerPage == 0) {
+	    	totalCount = 0;
+	    }
 	    return new ReportFormatDto(dtoList, totalCount);
 	}
 }
