@@ -3,6 +3,8 @@ package com.tts.stock.dao;
 import java.util.List;
 
 import com.tts.stock.domain.Item;
+import com.tts.stock.domain.ItemDepartment;
+import com.tts.stock.dto.ItemDepartmentDto;
 import com.tts.stock.dto.ItemDto;
 import com.tts.stock.dto.ItemFormatDto;
 
@@ -19,5 +21,7 @@ public interface ItemDao {
 	long getTotalItem();
 
 	List<ItemDto> getItemSearch(String search);
+
+	void addItemDepartment(ItemDepartment itemDepartment);
 
 }

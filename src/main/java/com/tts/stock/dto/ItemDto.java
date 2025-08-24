@@ -1,6 +1,7 @@
 package com.tts.stock.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -41,6 +42,7 @@ public class ItemDto {
 	private String itemName;
 	private String itemCode;
 	private UnitDto unitDto;
+	private List<ItemDepartmentDto> itemDepartmentDto;
 	private int reorderLevel;
 	private String remark;
 	@JsonSerialize(using = DateTimeFormatSerializer.class)

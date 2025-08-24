@@ -1,2 +1,17 @@
 ALTER TABLE `stockmovement`
 	ADD COLUMN `status` TINYINT(1) NOT NULL DEFAULT '1' AFTER `movementDate`;
+
+-----------------------------------------------------------------------\
+CREATE TABLE IF NOT EXISTS `itemdepartment` (
+  `itemDepartmentId` INT(11) NOT NULL AUTO_INCREMENT,
+  `departmentId` INT(11) NOT NULL,
+  `itemId` INT(11) NOT NULL,
+  PRIMARY KEY (`itemDepartmentId`),
+  UNIQUE KEY `uq_department_item` (`departmentId`, `itemId`),
+  CONSTRAINT `fk_department_item_department`
+    FOREIGN KEY (`departmentId`) REFERENCES `department` (`departmentId`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_department_item_item`
+    FOREIGN KEY (`itemId`) REFERENCES `item` (`itemId`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

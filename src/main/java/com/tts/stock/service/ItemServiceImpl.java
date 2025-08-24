@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tts.stock.dao.ItemDao;
 import com.tts.stock.domain.Item;
+import com.tts.stock.domain.ItemDepartment;
 import com.tts.stock.dto.ItemDto;
 import com.tts.stock.dto.ItemFormatDto;
 @Service
@@ -31,6 +32,13 @@ public class ItemServiceImpl implements ItemService{
 		item.setCreated_at(new Date());
 		item.setUpdated_at(new Date());
 		itemDao.addItem(item);
+
+		dto.getItemDepartmentDto().forEach(itemDepartmentDto -> {
+			ItemDepartment itemDepartment = new ItemDepartment(itemDepartmentDto);
+			itemDepartment.setItemId(item.getItemId());
+			itemDepartment.setDepartmentId(itemDepartmentDto.getDepartmentId());
+			itemDao.addItemDepartment(itemDepartment);
+		});
 		return dto;
 	}
 

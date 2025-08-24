@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 
 
 import com.tts.stock.domain.Item;
+import com.tts.stock.domain.ItemDepartment;
+import com.tts.stock.dto.ItemDepartmentDto;
 import com.tts.stock.dto.ItemDto;
 import com.tts.stock.dto.ItemFormatDto;
 import com.tts.stock.dto.UnitDto;
@@ -142,6 +144,15 @@ public class ItemDaoImpl implements ItemDao{
 		
 
 	    return dtoList;
+	}
+
+
+
+	@Override
+	public void addItemDepartment(ItemDepartment itemDepartment) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.getCurrentSession();
+		session.save(itemDepartment);
 	}
 
 }
