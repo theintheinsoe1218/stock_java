@@ -23,7 +23,7 @@ public class ReportDaoImpl implements ReportDao{
 	
 
 	@Override
-	public ReportFormatDto getStoreBalanceReport(Date fromDate, Date toDate, int departmentId,int page, int itemPerPage) {
+	public ReportFormatDto getStoreBalanceReport(Date fromDate, Date toDate, int departmentId,int page, int itemPerPage, int optionId) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.getCurrentSession();
 		String strfromDate = ConvertDate.convertDateToStringYearMonthDay(fromDate);
@@ -34,6 +34,10 @@ public class ReportDaoImpl implements ReportDao{
 			sqlLimit += "LIMIT "+ itemPerPage+"\r\n"+"OFFSET "+offset+"\r\n";
 		}
 		
+		String outQuery  = "";
+		if(optionId > 0){
+			outQuery += " AND sm.toDepartmentId = "+optionId +"\r\n";
+		}
 		
 		String sqlData = "SELECT \r\n"
 				+ "    it.itemId,\r\n"
@@ -78,6 +82,7 @@ public class ReportDaoImpl implements ReportDao{
 				+ "        FROM stockmovement sm\r\n"
 				+ "        WHERE sm.itemId = it.itemId\r\n"
 				+ "          AND sm.fromDepartmentId = :departmentId\r\n"
+				+ outQuery
 				+ "          AND sm.movementType = 'OUT'\r\n"
 				+"           AND sm.`status` = 1\r\n"
 				+ "          AND sm.movementDate BETWEEN :fromDate AND :toDate\r\n"
@@ -285,6 +290,8 @@ public class ReportDaoImpl implements ReportDao{
 				+ "\r\n"
 				+ "FROM item it\r\n"
 				+ "LEFT JOIN unit un ON un.unitId = it.unitId\r\n"
+				+ "INNER JOIN itemdepartment itd ON itd.itemId = it.itemId\r\n" 
+				+ "AND (itd.departmentId = :departmentId ) "
 				+ "ORDER BY it.itemName\r\n"
 				+ sqlLimit;
 		List<ReportStockBalanceDto> dtoList = new ArrayList<ReportStockBalanceDto>();

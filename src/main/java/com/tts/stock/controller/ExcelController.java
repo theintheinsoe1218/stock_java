@@ -48,7 +48,8 @@ public class ExcelController {
 			@RequestParam(name="departmentId",defaultValue = "0")int departmentId,
 			@RequestParam(name="departmentName",defaultValue = "")String departmentName,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-		    @RequestParam(name = "itemPerPage", required = false, defaultValue = "0") int itemPerPage){
+		    @RequestParam(name = "itemPerPage", required = false, defaultValue = "0") int itemPerPage,
+            @RequestParam(name="optionId",defaultValue = "0")int optionId){
 		if(fromDate != null && toDate != null) {
 			if(fromDate.getTime()>toDate.getTime()) {
 				Date temp = fromDate;
@@ -57,7 +58,7 @@ public class ExcelController {
 			}
 		}
 		ReportFormatDto dtoList = reportService.getStockBalanceReport(fromDate,toDate,departmentId,
-				departmentName,page,itemPerPage);
+				departmentName,page,itemPerPage,optionId);
 		XSSFWorkbook workbook = new XSSFWorkbook(); 
 		XSSFSheet sheet = workbook.createSheet("Daily Stock Balance");
         sheet.setColumnWidth(0,1500);

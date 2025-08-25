@@ -19,11 +19,11 @@ public class ReportServiceImpl implements ReportService{
 	@Transactional(readOnly=true)
 	@Override
 	public ReportFormatDto getStockBalanceReport(Date fromDate, Date toDate, int departmentId,
-			String deparmentName, int page, int itemPerPage) {
+			String deparmentName, int page, int itemPerPage, int optionId) {
 		// TODO Auto-generated method stub
 		
 		if("Store".equals(deparmentName)) {
-			return reportDao.getStoreBalanceReport(fromDate,toDate,departmentId,page,itemPerPage);
+			return reportDao.getStoreBalanceReport(fromDate,toDate,departmentId,page,itemPerPage, optionId);
 		}else {
 			
 			return reportDao.getOtherBalanceReport(fromDate,toDate,departmentId,page,itemPerPage);

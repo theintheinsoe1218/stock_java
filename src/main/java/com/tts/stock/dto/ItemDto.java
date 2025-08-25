@@ -45,6 +45,7 @@ public class ItemDto {
 	private List<ItemDepartmentDto> itemDepartmentDto;
 	private int reorderLevel;
 	private String remark;
+	private String departmentName;
 	@JsonSerialize(using = DateTimeFormatSerializer.class)
 	@JsonDeserialize(using = DateTimeFormatDeserializer.class)
 	private Date created_at;

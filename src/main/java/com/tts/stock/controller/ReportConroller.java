@@ -26,9 +26,10 @@ public class ReportConroller {
 			@RequestParam(name="departmentId",defaultValue = "0")int departmentId,
 			@RequestParam(name="departmentName",defaultValue = "")String departmentName,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-		    @RequestParam(name = "itemPerPage", required = false, defaultValue = "0") int itemPerPage){
+		    @RequestParam(name = "itemPerPage", required = false, defaultValue = "0") int itemPerPage,
+			@RequestParam(name="optionId",defaultValue = "0")int optionId){
 		try {
-			return reportService.getStockBalanceReport(fromDate,toDate,departmentId,departmentName,page,itemPerPage);
+			return reportService.getStockBalanceReport(fromDate,toDate,departmentId,departmentName,page,itemPerPage,optionId);
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();

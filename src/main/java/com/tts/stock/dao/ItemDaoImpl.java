@@ -29,18 +29,27 @@ public class ItemDaoImpl implements ItemDao{
 		int offset = (page - 1 ) * itemPerPage;
 		
 		String sqlData = "SELECT i.itemId,i.itemName,i.itemCode, i.unitId, u.unitName, i.reorderLevel,\r\n"
-				+ "i.remark,i.created_at,i.updated_at\r\n"
+				+ "i.remark,i.created_at,i.updated_at,\r\n"
+				+ "GROUP_CONCAT(DISTINCT d.departmentName ORDER BY d.departmentName SEPARATOR ', ') AS departmentNames\r\n"
 				+ "FROM item i\r\n"
 				+ "LEFT JOIN unit u ON u.unitId = i.unitId\r\n"
+				+ "LEFT JOIN itemdepartment itd ON itd.itemId = i.itemId\r\n" 
+				+ "LEFT JOIN department d ON d.departmentId = itd.departmentId\r\n"
+				+ "GROUP BY i.itemId\r\n"
 				+ "ORDER BY i.itemName\r\n"
 				+ "LIMIT :itemPerPage\r\n"
 				+ "OFFSET :offset\r\n";
 		
-		String sqlDataAll = "SELECT i.itemId,i.itemName,i.itemCode, i.unitId, u.unitName, i.reorderLevel,\r\n"
-				+ "i.remark,i.created_at,i.updated_at\r\n"
-				+ "FROM item i\r\n"
-				+ "LEFT JOIN unit u ON u.unitId = i.unitId\r\n"
-				+ "ORDER BY i.itemName";
+		String sqlDataAll = "SELECT i.itemId,i.itemName,i.itemCode, \r\n"+ 
+						"i.unitId, u.unitName, i.reorderLevel,\r\n" +
+						"i.remark,i.created_at,i.updated_at,\r\n" + 
+						"GROUP_CONCAT(DISTINCT d.departmentName ORDER BY d.departmentName SEPARATOR ', ') AS departmentNames\r\n" + 
+						"FROM item i\r\n" + 
+						"LEFT JOIN unit u ON u.unitId = i.unitId\r\n" + 
+						"LEFT JOIN itemdepartment itd ON itd.itemId = i.itemId\r\n" + 
+						"LEFT JOIN department d ON d.departmentId = itd.departmentId\r\n" + 
+						"GROUP BY i.itemId\r\n" + 
+						"ORDER BY i.itemName";
 		List<Object[]> objList = null;
 		if(itemPerPage == 0) {
 			objList = session.createNativeQuery(sqlDataAll)
@@ -66,9 +75,10 @@ public class ItemDaoImpl implements ItemDao{
 			String remark = (String)obj[6];
 			Date created_at = (Date)obj[7];
 			Date updated_at = (Date)obj[8];
-			
+			String departmentName = (String)obj[9];
 			ItemDto dto = new ItemDto(itemId,itemName,itemCode,reorderLevel,remark,created_at,updated_at);
 			dto.setUnitDto(new UnitDto(unitId,unitName));
+			dto.setDepartmentName(departmentName);
 			dtoList.add(dto);
 		}
 		// Query for total count

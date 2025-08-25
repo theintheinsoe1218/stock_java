@@ -8,6 +8,6 @@ import com.tts.stock.dto.ReportStockBalanceDto;
 
 public interface ReportService {
 
-	ReportFormatDto getStockBalanceReport(Date fromDate, Date toDate, int departmentId, String departmentName, int page, int itemPerPage);
+	ReportFormatDto getStockBalanceReport(Date fromDate, Date toDate, int departmentId, String departmentName, int page, int itemPerPage, int optionId);
 
 }
